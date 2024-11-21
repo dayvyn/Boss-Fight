@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Collections;
 using System;
-using TMPro;
 using UnityEngine;
 
 namespace DavinB
