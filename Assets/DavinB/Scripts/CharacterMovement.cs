@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Collections;
 using System;
 using UnityEngine;
+using UnityEngine.Events;
+using DG.Tweening;
 
 namespace DavinB
 {
@@ -18,6 +20,9 @@ namespace DavinB
         private Vector3 moveDir;
         public GameObject cam;
         private Rigidbody rb;
+        const int maxHealth = 20;
+        private int currentHealth;
+        public int CurrentHealth { get => currentHealth; private set { currentHealth = value; } }
 
         private float distToGround;
 
@@ -34,12 +39,18 @@ namespace DavinB
         public int place;
         bool jumping;
 
-
-
+        public UnityAction PickedUp;
+        public UnityAction<int> LoseHealth;
+        public bool pickedUpAlready = false;
+        Ground ground;
 
         private void OnEnable()
         {
             input.Enable();
+            PickedUp += PickedUpFunction;
+            ground = FindAnyObjectByType<Ground>();
+            currentHealth = maxHealth;
+            LoseHealth += OnHealthLoss;
         }
 
         private void OnDisable()
@@ -254,6 +265,43 @@ namespace DavinB
         {
             speed = 0;
         }
+
+        void PickedUpFunction()
+        {
+            pickedUpAlready = true;
+            input.Disable();
+            float yPos = ground.transform.position.y + 1;
+            transform.DOMoveY(50, 2).OnComplete(() => {
+                transform.DOMoveY(yPos, 0.2f).SetEase(Ease.Flash).OnComplete(() =>
+                {
+                    LoseHealth.Invoke(3);
+                    transform.DOMoveY(30, .4f).SetEase(Ease.Flash).OnComplete(() =>
+                    {
+                        transform.DOMoveY(yPos, 0.1f).SetEase(Ease.Flash).OnComplete(() =>
+                        {
+                            LoseHealth.Invoke(3);
+                            transform.DOMoveY(30, .4f).SetEase(Ease.Flash).OnComplete(() =>
+                            {
+                                transform.DOMoveY(yPos, 0.1f).SetEase(Ease.Flash).OnComplete(() =>
+                                {
+                                    LoseHealth.Invoke(3);
+                                    pickedUpAlready = false;
+                                    input.Enable();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+            
+        }
+
+        void OnHealthLoss(int dmgAmount)
+        {
+            currentHealth -= dmgAmount;
+            Debug.Log(currentHealth);
+        }
+
 
     }
 }

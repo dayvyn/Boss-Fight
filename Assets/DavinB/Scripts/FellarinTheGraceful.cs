@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Events;
 
 namespace DavinB
 {
@@ -19,6 +20,9 @@ namespace DavinB
         [SerializeField] float moveSpeed;
         [SerializeField] float attackSpeed;
         [SerializeField] int radius;
+
+        public GameObject aoePickup;
+        public List<Transform> radii;
 
         private void OnEnable()
         {
@@ -40,5 +44,7 @@ namespace DavinB
         {
             fsm.currentState.Do();
         }
+
+
     }
 }
